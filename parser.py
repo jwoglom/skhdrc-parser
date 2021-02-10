@@ -105,10 +105,24 @@ class Parser:
 
 
 if __name__ == '__main__':
+    import argparse
     import os
+    import json
     from pathlib import Path
+
+    parser = argparse.ArgumentParser(description="Parse skhdrc keyboard shortcuts and commands")
+    parser.add_argument('--file', '-f', default=os.path.join(Path.home(), ".skhdrc"), help='skhdrc file')
+    parser.add_argument('--output', '-o', default=None, help='output format')
+    args = parser.parse_args()
+
     import pprint
 
-    skhdrc = os.path.join(Path.home(), ".skhdrc")
-    p = Parser(skhdrc)
-    print(pprint.pprint(p.parse()))
+    p = Parser(args.file)
+    parse = p.parse()
+
+    if args.output == 'json':
+        jsondata = {
+            "comments": {str(k): v for k, v in parse[0].items()},
+            "commands": {str(k): v for k, v in parse[1].items()}
+        }
+        print(json.dumps(jsondata, indent=2))
