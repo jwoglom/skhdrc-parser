@@ -16,6 +16,9 @@ class Key:
     def __eq__(self, o):
         return o.code.lower() == self.code.lower() and o.modifier == self.modifier
     
+    def center(self, w, fill=' '):
+        return self.disp[:w].center(w, fill)
+    
     @staticmethod
     def shortcut_list(sh):
         keys = []
@@ -90,17 +93,32 @@ class KeyboardRow:
         s = ""
         for k in self.keys:
             w = int(k.width / WIDTH_PER_PIXEL)
-            s += process_highlight(k, BOX[0][0], BOX[0][1] * (w-2), BOX[0][2])
+            if k == KEY_UP:
+                s += process_highlight(k, BOX[0][0], k.center(2*w-2, BOX[3][1]), BOX[0][2])
+            elif k == KEY_DOWN:
+                pass
+            else:
+                s += process_highlight(k, BOX[0][0], BOX[0][1] * (w-2), BOX[0][2])
 
         s += "\n"
         for k in self.keys:
             w = int(k.width / WIDTH_PER_PIXEL)
-            s += process_highlight(k, BOX[1][0], k.disp[:(w-2)].center(w-2), BOX[1][2])
+            if k == KEY_UP:
+                s += process_highlight(Key(""), BOX[3][0], BOX[3][1] * (w-2), BOX[3][1])
+            elif k == KEY_DOWN:
+                s += process_highlight(Key(""), BOX[3][1], BOX[3][1] * (w-2), BOX[3][2])
+            else:    
+                s += process_highlight(k, BOX[1][0], k.center(w-2), BOX[1][2])
 
         s += "\n"
         for k in self.keys:
             w = int(k.width / WIDTH_PER_PIXEL)
-            s += process_highlight(k, BOX[2][0], BOX[2][1] * (w-2), BOX[2][2])
+            if k == KEY_UP:
+                pass
+            elif k == KEY_DOWN:
+                s += process_highlight(k, BOX[2][0], k.center(2*w-2, BOX[3][1]), BOX[2][2])
+            else:
+                s += process_highlight(k, BOX[2][0], BOX[2][1] * (w-2), BOX[2][2])
 
         return s
 
@@ -197,6 +215,8 @@ KEY_FN = Key("fn", modifier=True)
 KEY_CTRL = Key("ctrl", modifier=True)
 KEY_ALT = Key("alt", modifier=True)
 KEY_CMD = Key("cmd", modifier=True)
+KEY_UP = Key("up")
+KEY_DOWN = Key("down")
 
 
 if __name__ == '__main__':
