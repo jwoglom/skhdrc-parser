@@ -50,7 +50,7 @@ class Shortcut:
         if self.mode:
             s += "[%s] " % self.mode if self.mode else ""
         if self.operators:
-            s += "+".join(self.operators)
+            s += " + ".join(self.operators)
         if self.key:
             if self.operators:
                 s += " - "
