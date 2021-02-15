@@ -1,7 +1,8 @@
 class Key:
-    def __init__(self, disp, code=None, width=1, modifier=False):
+    def __init__(self, disp, code=None, codes=None, width=1, modifier=False):
         self.disp = disp
         self.code = code or disp
+        self.codes = set([self.code] + codes) if codes else set([self.code])
         self.width = width
         self.modifier = modifier
 
@@ -9,16 +10,17 @@ class Key:
         if self.code != self.disp:
             return "%s (%s)" % (self.disp, self.code)
         return self.disp
-    
+
     def __repr__(self):
         return "Key(%s)" % self.__str__()
 
     def __eq__(self, o):
-        return o.code.lower() == self.code.lower() and o.modifier == self.modifier
-    
+        # return o.code.lower() == self.code.lower() and o.modifier == self.modifier
+        return any([i.lower() == j.lower() for i in o.codes for j in self.codes]) and o.modifier == self.modifier
+
     def center(self, w, fill=' '):
         return self.disp[:w].center(w, fill)
-    
+
     @staticmethod
     def shortcut_list(sh):
         keys = []
@@ -27,9 +29,9 @@ class Key:
 
         if sh.key:
             keys.append(Key(sh.key))
-        
+
         return keys
-        
+
 
 class KeyboardRow:
     ROW_WIDTH = 14.5
@@ -107,7 +109,7 @@ class KeyboardRow:
                 s += process_highlight(Key(""), BOX[3][0], BOX[3][1] * (w-2), BOX[3][1])
             elif k == KEY_DOWN:
                 s += process_highlight(Key(""), BOX[3][1], BOX[3][1] * (w-2), BOX[3][2])
-            else:    
+            else:
                 s += process_highlight(k, BOX[1][0], k.center(w-2), BOX[1][2])
 
         s += "\n"
@@ -184,7 +186,7 @@ MAC_KB = Keyboard(
         Key("'"),
         Key("return", width=1.75),
     ), KeyboardRow(
-        Key("shift", modifier=True, width=2.25),
+        Key("shift", codes=["lshift"], modifier=True, width=2.25),
         Key("z"),
         Key("x"),
         Key("c"),
@@ -198,9 +200,9 @@ MAC_KB = Keyboard(
         Key("shift", code="rshift", modifier=True, width=2.25),
     ), KeyboardRow(
         Key("fn", modifier=True),
-        Key("ctrl", modifier=True),
-        Key("alt", modifier=True),
-        Key("cmd", modifier=True, width=1.25),
+        Key("ctrl", codes=["lctrl"], modifier=True),
+        Key("alt", codes=["lalt"], modifier=True),
+        Key("cmd", codes=["lcmd"], modifier=True, width=1.25),
         Key("space", width=5),
         Key("cmd", code="rcmd", modifier=True, width=1.25),
         Key("alt", code="ralt", modifier=True),

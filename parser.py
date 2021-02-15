@@ -1,6 +1,4 @@
 class Shortcut:
-    BASE = ["cmd", "ctrl", "alt"]
-
     def __init__(self, text):
         self.mode = None
         self.text = text
@@ -33,11 +31,17 @@ class Shortcut:
             self.key = self.operators[0]
             self.operators = []
 
-        ops = [i for i in self.operators]
-        if all([b in ops for b in self.BASE]):
-            for b in self.BASE:
-                ops.remove(b)
-        self.added_operators = ops
+    """
+    Given a dictionary of key shortcuts to replacements, replaces the operators.
+    e.g.: {("rcmd", "lctrl", "ralt"): ("fn", "lctrl")}
+    """
+    def replace_operators(self, opmap):
+        for k, v in opmap.items():
+            if all([i in self.operators for i in k]):
+                for i in k:
+                    self.operators.remove(i)
+                for i in v:
+                    self.operators.append(i)
 
     def __str__(self):
         s = ""
@@ -68,7 +72,7 @@ class Parser:
         lines = open(self.file, "r").read().splitlines()
         return [l.strip() for l in lines]
 
-    def parse(self):
+    def parse(self, opmap=None):
         comments = {}
         commands = {}
         curComment = []
@@ -88,6 +92,9 @@ class Parser:
             if " : " in line:
                 keys, cmd = line.split(" : ", 1)
                 sh = Shortcut(keys)
+                if opmap:
+                    sh.replace_operators(opmap)
+
                 if cmd.endswith("\\"):
                     continueSh = sh
                 commands[sh] = cmd
@@ -117,8 +124,11 @@ if __name__ == '__main__':
 
     import pprint
 
+    # rcmd + lctrl + ralt as specified in skhd config is mapped to fn + lctrl
+    opmap = {("rcmd", "lctrl", "ralt"): ("fn", "lctrl")}
+
     p = Parser(args.file)
-    parse = p.parse()
+    parse = p.parse(opmap=opmap)
 
     if args.output == 'json':
         jsondata = {
