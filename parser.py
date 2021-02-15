@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 class Shortcut:
     def __init__(self, text):
         self.mode = None
@@ -120,6 +122,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Parse skhdrc keyboard shortcuts and commands")
     parser.add_argument('--file', '-f', default=os.path.join(Path.home(), ".skhdrc"), help='skhdrc file')
     parser.add_argument('--output', '-o', default=None, help='output format')
+    parser.add_argument('--remove-newlines', action='store_true', help='remove newlines in json output')
     args = parser.parse_args()
 
     import pprint
@@ -131,8 +134,18 @@ if __name__ == '__main__':
     parse = p.parse(opmap=opmap)
 
     if args.output == 'json':
+        def comment_val(v):
+            if args.remove_newlines:
+                return v.replace('\n', '. ')
+            return v
+
+        def command_val(v):
+            if args.remove_newlines:
+                return v.replace('\n', ' ')
+            return v
+
         jsondata = {
-            "comments": {str(k): v for k, v in parse[0].items()},
-            "commands": {str(k): v for k, v in parse[1].items()}
+            "comments": {str(k): comment_val(v) for k, v in parse[0].items()},
+            "commands": {str(k): command_val(v) for k, v in parse[1].items()}
         }
         print(json.dumps(jsondata, indent=2))

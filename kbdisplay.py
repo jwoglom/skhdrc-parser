@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 class Key:
     def __init__(self, disp, code=None, codes=None, width=1, modifier=False):
         self.disp = disp
